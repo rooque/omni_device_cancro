@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include "log.h"
 
 #define BOOTINFO_PATH   "/sys/bootinfo/hw_version"
 #define BUF_SIZE         64
@@ -25,11 +26,34 @@
 
 static char buff_tmp[BUF_SIZE];
 
+static int read_file3(const char *fname, char *data, int max_size)
+{
+    int fd, rc;
+
+    if (max_size < 1)
+        return 0;
+
+    fd = open(fname, O_RDONLY);
+    if (fd < 0) {
+        ERROR("failed to open '%s'\n", fname);
+        return 0;
+    }
+
+    rc = read(fd, data, max_size - 1);
+    if ((rc > 0) && (rc < max_size))
+        data[rc] = '\0';
+    else
+        data[0] = '\0';
+    close(fd);
+
+    return 1;
+}
+
 unsigned long get_hw_version(){
     int rc = 0;
     unsigned long hw_ul;
 
-    rc = read_file2(BOOTINFO_PATH, buff_tmp, sizeof(buff_tmp));    
+    rc = read_file3(BOOTINFO_PATH, buff_tmp, sizeof(buff_tmp));
     if(rc) {
         hw_ul = strtoul(buff_tmp, NULL, 0);
         return hw_ul;    

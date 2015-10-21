@@ -372,11 +372,11 @@ PRODUCT_PACKAGES += \
     consumerir.msm8974
 
 # FM Radio
-PRODUCT_PACKAGES += \
-    FM2 \
-    FMRecord \
-    libqcomfm_jni \
-    qcom.fmradio
+#PRODUCT_PACKAGES += \
+#    FM2Xiaomi \
+#    FMRecXiaomi \
+#    libqcomfm_jni \
+#    qcom.fmradio
 
 PRODUCT_PROPERTY_OVERRIDES += \
     hw.fm.internal_antenna=true
@@ -443,6 +443,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.ltm_enable=true \
     assertdisplay.value=128 \
     persist.sys.gamut_mode=0
+
+# avoid setting cdma sim to 2g
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.ril.multi_rat_capable=true
 
 # Keylayout
 PRODUCT_COPY_FILES += \

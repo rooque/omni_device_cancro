@@ -77,7 +77,10 @@ void init_msm_properties(unsigned long msm_id, unsigned long msm_ver, char *boar
     UNUSED(board_type);
 
     /* set ro.hwversion */
-    property_set("ro.hwversion", real_hw_version());
+    const int hwv_len = snprintf(NULL, 0, "%lu", real_hw_version());
+    char hwv_buff [hwv_len + 1];
+    snprintf(hwv_buff, hwv_len + 1, "%lu", real_hw_version());
+    property_set("ro.hwversion", hwv_buff);
 
 
     /* set mixer paths props */

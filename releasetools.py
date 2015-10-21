@@ -36,7 +36,12 @@ def FullOTA_Assertions(info):
          'set_metadata("/tmp/busybox", "uid", 0, "gid", 0, "mode", 0777);'))
 
 def FullOTA_InstallEnd(info):
-
+  #info.script.AppendExtra('symlink("/data/misc/audio/mbhc.bin", "/system/etc/firmware/wcd9320/wcd9320_mbhc.bin");')
+  #info.script.AppendExtra('symlink("/data/misc/audio/wcd9320_anc.bin", "/system/etc/firmware/wcd9320/wcd9320_anc.bin");')
+  #info.script.AppendExtra('symlink("/data/misc/audio/wcd9320_mad_audio.bin", "/system/etc/firmware/wcd9320/wcd9320_mad_audio.bin");')
+  #info.script.AppendExtra('symlink("/system/etc/firmware/ath6k/AR6004/hw1.3/bdata.bin_usb", "/system/etc/firmware/ath6k/AR6004/hw1.3/bdata.bin");')
+  #info.script.AppendExtra('symlink("/system/etc/firmware/ath6k/AR6004/hw1.3/fw.ram.bin_usb", "/system/etc/firmware/ath6k/AR6004/hw1.3/fw.ram.bin");')
+  #info.script.AppendExtra('symlink("/system/etc/firmware/ath6k/AR6004/hw3.0/bdata.bin_usb", "/system/etc/firmware/ath6k/AR6004/hw3.0/bdata.bin");')
   info.script.AppendExtra('assert(run_program("/tmp/checksoc.sh") == 0);')
 
 
