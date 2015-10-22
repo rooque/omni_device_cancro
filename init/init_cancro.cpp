@@ -41,7 +41,27 @@
 #define RAW_ID_PATH     "/sys/devices/system/soc/soc0/raw_id"
 #define BUF_SIZE         64
 
+#define BOOTINFO_PATH   "/sys/bootinfo/hw_version"
+
+#define HW_MAJOR_VERSION_SHIFT 4
+#define HW_MAJOR_VERSION_MASK  0xF0
+#define HW_MINOR_VERSION_SHIFT 0
+#define HW_MINOR_VERSION_MASK  0x0F
+
 static char tmp[BUF_SIZE];
+static char buff_tmp[BUF_SIZE];
+
+const char *v3_mixer_paths[] = {"mixer_paths_3_1.xml", "mixer_paths_3_1_forte.xml", "mixer_paths_3_2.xml", "mixer_paths_3_2_forte.xml"};
+const char *v4_mixer_paths[] = {"mixer_paths_4_x.xml", "mixer_paths_4_x_forte.xml"};
+const char *v5_mixer_paths[] = {"mixer_paths_5_x.xml", "mixer_paths_5_x_forte.xml"};
+
+const char *v3_mixer_paths_auxpcm[] = {"mixer_paths_auxpcm_3_1.xml", "mixer_paths_auxpcm_3_2.xml"};
+const char *v4_mixer_paths_auxpcm[] = {"mixer_paths_auxpcm_4_x.xml"};
+const char *v5_mixer_paths_auxpcm[] = {"mixer_paths_auxpcm_5_x.xml"};
+
+const char *mixer_paths_prefix = "/system/etc/";
+const char *def_mixer_paths = "mixer_paths.xml";
+const char *def_mixer_paths_aux = "mixer_paths_auxpcm.xml";
 
 static int read_file2(const char *fname, char *data, int max_size)
 {
@@ -64,6 +84,100 @@ static int read_file2(const char *fname, char *data, int max_size)
     close(fd);
 
     return 1;
+}
+
+unsigned long get_hw_version(){
+    int rc = 0;
+    unsigned long hw_ul;
+
+    rc = read_file2(BOOTINFO_PATH, buff_tmp, sizeof(buff_tmp));
+    if(rc) {
+        hw_ul = strtoul(buff_tmp, NULL, 0);
+        return hw_ul;    
+    } else {
+        return 75;
+    }
+    
+}
+
+unsigned long get_hw_version_major() {
+	return ((get_hw_version() & HW_MAJOR_VERSION_MASK) >> HW_MAJOR_VERSION_SHIFT);
+}
+
+unsigned long get_hw_version_minor() {
+	return ((get_hw_version() & HW_MINOR_VERSION_MASK) >> HW_MINOR_VERSION_SHIFT);
+}
+
+unsigned long real_hw_version() {
+        return ((get_hw_version_major() * 10) + get_hw_version_minor());
+}
+
+const char *get_mixer_paths()
+{
+    unsigned long hw_major,hw_minor;
+    const char *tmp_mixer_paths;
+
+    hw_major = get_hw_version_major();
+    hw_minor = get_hw_version_minor();
+
+    if(hw_major == 3){
+
+        if(hw_minor == 1){
+            
+            tmp_mixer_paths = v3_mixer_paths[1];
+        } else {
+            
+            tmp_mixer_paths = v3_mixer_paths[3];
+        }
+
+
+    } else if (hw_major == 4) {
+        tmp_mixer_paths = v4_mixer_paths[1];
+       
+
+    } else if (hw_major == 5) {
+        tmp_mixer_paths = v5_mixer_paths[1];
+        
+
+    } else {
+        
+        tmp_mixer_paths = def_mixer_paths;
+ 
+    }
+
+    return tmp_mixer_paths;    
+
+}
+
+const char *get_mixer_paths_auxpcm()
+{
+    unsigned long hw_major,hw_minor;
+    const char *tmp_mixer_paths_aux;
+
+    hw_major = get_hw_version_major();
+    hw_minor = get_hw_version_minor();
+
+    if(hw_major == 3){
+
+        if(hw_minor == 1){
+            tmp_mixer_paths_aux = v3_mixer_paths_auxpcm[0];
+        } else {
+            tmp_mixer_paths_aux = v3_mixer_paths_auxpcm[1];
+        }
+
+    } else if (hw_major == 4) {
+        tmp_mixer_paths_aux = v4_mixer_paths_auxpcm[0];
+
+    } else if (hw_major == 5) {
+        tmp_mixer_paths_aux = v5_mixer_paths_auxpcm[0];
+
+    } else {
+        tmp_mixer_paths_aux = def_mixer_paths_aux;
+
+    }
+
+    return tmp_mixer_paths_aux; 
+
 }
 
 void init_msm_properties(unsigned long msm_id, unsigned long msm_ver, char *board_type)
@@ -120,4 +234,3 @@ void init_msm_properties(unsigned long msm_id, unsigned long msm_ver, char *boar
         property_set("ro.product.model", "MI 3/4"); // this should never happen.
     }
 }
-

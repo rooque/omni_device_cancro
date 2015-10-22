@@ -40,10 +40,6 @@ on init
     export VIBE_PIPE_PATH /dev/pipes
     mkdir /dev/pipes 0771 system system
 
-# import cne init file
-#on post-fs
-#    export LD_PRELOAD /vendor/lib/libNimsWrap.so
-
 on fs
     mount_all fstab.qcom
 
@@ -57,7 +53,7 @@ on fs
     mkdir /persist/data/tz 0700 system system
     mkdir /persist/audio 0771 media audio
 
-    mount vfat /dev/block/platform/msm_sdcc.1/by-name/modem /firmware ro context=u:object_r:firmware_file:s0,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
+    mount vfat /dev/block/platform/msm_sdcc.1/by-name/modem /firmware wait ro context=u:object_r:firmware_file:s0,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
 
 on post-fs-data
     mkdir /data/tombstones 0771 system system
@@ -147,6 +143,12 @@ service qgesturesvr /system/bin/mm-gesture-daemon
     class late_start
     user system
     group system camera input graphics net_bt_stack
+
+#start GNSS/Sensor interface daemon
+service gsiff_daemon /system/bin/gsiff_daemon
+    class late_start
+    user gps
+    group gps net_raw misc
 
 on property:sys.boot_completed=1
     start qrngp
@@ -404,6 +406,7 @@ on property:persist.radio.modem=LTE-X5-ALL
     setprop persist.radio.disable_flexmap 0
     setprop ro.sys.oosenhance.timer 20000
 on property:persist.radio.modem=LTE-X5
+    setprop persist.radio.disable_flexmap 1
     setprop ro.sys.oosenhance.timer 20000
 
 service eyecare /system/bin/eyecare

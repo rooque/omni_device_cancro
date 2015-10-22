@@ -35,18 +35,23 @@ PRODUCT_NAME := omni_cancro
 PRODUCT_DEVICE := cancro
 PRODUCT_BRAND := Xiaomi
 PRODUCT_MANUFACTURER := Xiaomi
-PRODUCT_MODEL := MI Cancro
+#PRODUCT_MODEL := MI 4
 
 PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
 
 # Device prop
 PRODUCT_BUILD_PROP_OVERRIDES += \
     TARGET_DEVICE="cancro" \
-    PRODUCT_NAME="cancro" \
-    BUILD_FINGERPRINT="Xiaomi/cancro/cancro:5.1.1/LMY48M/5.9.17:userdebug/test-keys" \
-    PRIVATE_BUILD_DESC="cancro-userdebug 5.1.1 LMY48M 5.9.17 test-keys"
+    PRODUCT_NAME="cancro" 
+    
+# no DSPManager for us
+TARGET_NO_DSPMANAGER := true
 
-TARGET_CONTINUOUS_SPLASH_ENABLED := true
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    BUILD_FINGERPRINT="xiaomi/cancro/cancro:6.0/MRA58N/5.11.1:user/release-keys" \
+    PRIVATE_BUILD_DESC="cancro-user 6.0 MRA58N 5.11.1 release-keys"
+
+#TARGET_CONTINUOUS_SPLASH_ENABLED := true
 
 # Inline kernel
 TARGET_KERNEL_SOURCE := kernel/xiaomi/cancro

@@ -22,8 +22,8 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
 # Show selinux status on settings
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.build.selinux=1
+#PRODUCT_PROPERTY_OVERRIDES += \
+#    ro.build.selinux=1
 
 # Check SOC
 PRODUCT_COPY_FILES += \
@@ -31,6 +31,7 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_COPY_FILES += \
     device/xiaomi/cancro/etc/bl_lut.txt:system/etc/bl_lut.txt \
+    device/xiaomi/cancro/etc/xtwifi.conf:system/etc/xtwifi.conf \
     device/xiaomi/cancro/etc/calib.cfg:system/etc/calib.cfg
 
 # NFC
@@ -140,15 +141,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.qc.sdk.izat.service_mask=0x5
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.rild.nitz_plmn="" \
-    persist.rild.nitz_long_ons_0="" \
-    persist.rild.nitz_long_ons_1="" \
-    persist.rild.nitz_long_ons_2="" \
-    persist.rild.nitz_long_ons_3="" \
-    persist.rild.nitz_short_ons_0="" \
-    persist.rild.nitz_short_ons_1="" \
-    persist.rild.nitz_short_ons_2="" \
-    persist.rild.nitz_short_ons_3=""
+    persist.fuse_sdcard=true
 
 # Lights
 PRODUCT_PACKAGES += \
@@ -224,8 +217,8 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/audio/audio_policy.conf:system/etc/audio_policy.conf \
     $(LOCAL_PATH)/audio/init.qcom.audio.sh:system/etc/init.qcom.audio.sh \
+    $(LOCAL_PATH)/audio/audio_platform_info.xml:system/etc/audio_platform_info.xml \
     $(LOCAL_PATH)/audio/listen_platform_info.xml:system/etc/listen_platform_info.xml \
-    $(LOCAL_PATH)/audio/mixer_paths/listen_platform_info.xml:system/etc/listen_platform_info.xml \
     $(LOCAL_PATH)/audio/mixer_paths/mixer_paths_3_1.xml:system/etc/mixer_paths_3_1.xml \
     $(LOCAL_PATH)/audio/mixer_paths/mixer_paths_3_1_forte.xml:system/etc/mixer_paths_3_1_forte.xml \
     $(LOCAL_PATH)/audio/mixer_paths/mixer_paths_3_2.xml:system/etc/mixer_paths_3_2.xml \
@@ -276,6 +269,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libc2dcolorconvert \
     libdivxdrmdecrypt \
+    libextmedia_jni \
     libdashplayer \
     libOmxAacEnc \
     libOmxAmrEnc \
@@ -285,6 +279,8 @@ PRODUCT_PACKAGES += \
     libOmxVdec \
     libOmxVdecHevc \
     libOmxVenc \
+    libOmxVidcCommon \
+    libqcmediaplayer \
     libstagefrighthw \
     qcmediaplayer
 
@@ -309,7 +305,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     tunnel.audio.encode=false \
     persist.audio.init_volume_index=1 \
     audio.offload.buffer.size.kb=32 \
-    av.offload.enable=true \
+    audio.offload.video=true \
     audio.offload.gapless.enabled=false \
     audio.offload.disable=1 \
     use.dedicated.device.for.voip=false \
@@ -322,10 +318,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.audio.fluence.speaker=true \
     audio.offload.pcm.enable=false
 
-#Enable more sensor
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.qc.sensors.step_detector=true \
-    ro.qc.sensors.step_counter=true
 
 
 #PRODUCT_PROPERTY_OVERRIDES += \
@@ -350,6 +342,10 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     libxml2
+    
+# BoringSSL compatibility wrapper
+PRODUCT_PACKAGES += \
+    libboringssl-compat
 
 # Graphics
 PRODUCT_PACKAGES += \
@@ -370,16 +366,6 @@ PRODUCT_PACKAGES += \
 # IR package
 PRODUCT_PACKAGES += \
     consumerir.msm8974
-
-# FM Radio
-#PRODUCT_PACKAGES += \
-#    FM2Xiaomi \
-#    FMRecXiaomi \
-#    libqcomfm_jni \
-#    qcom.fmradio
-
-PRODUCT_PROPERTY_OVERRIDES += \
-    hw.fm.internal_antenna=true
 
 # Enable Adaptive Multi-Rate Wideband
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -419,8 +405,6 @@ endif
 # System properties
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.nfc.port=I2C \
-    ro.fm.transmitter=false \
-    com.qc.hardware=true \
     persist.demo.hdmirotationlock=false \
     ro.hdmi.enable=true \
     debug.sf.hw=1 \
@@ -431,7 +415,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=480 \
     dev.pm.dyn_samplingrate=1 \
     ro.opengles.version=196608 \
-    ril.subscription.types=NV,RUIM \
+    ril.subscription.types=RUIM \
     persist.omh.enabled=true \
     persist.sys.ssr.restart_level=3 \
     persist.timed.enable=true \
@@ -494,11 +478,8 @@ ifneq ($(QCPATH),)
 $(call inherit-product-if-exists, $(QCPATH)/prebuilt_HY11/target/product/msm8974/prebuilt.mk)
 endif
 
-# call dalvik heap config
-$(call inherit-product, frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk)
-
-# call hwui memory config
-$(call inherit-product, frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk)
+$(call inherit-product, frameworks/native-caf/build/phone-xxhdpi-2048-dalvik-heap.mk)
+$(call inherit-product, frameworks/native-caf/build/phone-xxhdpi-2048-hwui-memory.mk)
 
 # call the proprietary setup
 $(call inherit-product, vendor/xiaomi/cancro/cancro-vendor.mk)

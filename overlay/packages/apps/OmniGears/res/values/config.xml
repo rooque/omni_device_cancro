@@ -21,7 +21,4 @@
          Setting to false will disable Volume Rocker Wake support -->
     <bool name="config_show_volumeRockerWake">true</bool>
 
-    <!-- Home Button Wake -->
-    <bool name="config_show_homeWake">true</bool>
-
 </resources>

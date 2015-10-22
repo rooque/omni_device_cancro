@@ -27,10 +27,8 @@ TARGET_CPU_VARIANT := krait
 # Krait optimizations
 TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
 
-# Flags
-#COMMON_GLOBAL_CFLAGS += -D__ARM_USE_PLD -D__ARM_CACHE_LINE_SIZE=64
 
-BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 vmalloc=340M androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 androidboot.selinux=permissive androidboot.bootdevice=msm_sdcc.1
+BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 androidboot.selinux=permissive androidboot.bootdevice=msm_sdcc.1
 BOARD_KERNEL_BASE        := 0x00000000
 BOARD_KERNEL_PAGESIZE    := 2048
 BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
@@ -39,17 +37,13 @@ BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x01e00000
 BOARD_CUSTOM_BOOTIMG_MK := $(CANCRO_PATH)/mkbootimg.mk
 BOARD_KERNEL_SEPARATED_DT :=  true
 
-# Flags
-COMMON_GLOBAL_CFLAGS += -DQCOM_HARDWARE -DNO_SECURE_DISCARD -DQCOM_BSP
-COMMON_GLOBAL_CPPFLAGS += -DQCOM_HARDWARE -DNO_SECURE_DISCARD -DQCOM_BSP
-
 # QCOM hardware
 BOARD_USES_QCOM_HARDWARE := true
 TARGET_USES_QCOM_BSP := true
 TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 
 # Power
-TARGET_PROVIDES_POWERHAL := true
+#TARGET_PROVIDES_POWERHAL := true
 
 # Light
 TARGET_PROVIDES_LIBLIGHT := true
@@ -76,13 +70,18 @@ QCOM_BT_USE_SMD_TTY := true
 BLUETOOTH_HCI_USE_MCT := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(CANCRO_PATH)/bluetooth
 
+# RIL
+TARGET_RIL_VARIANT := caf
+COMMON_GLOBAL_CFLAGS += -DUSE_RIL_VERSION_10
+
 # FM
 BOARD_HAVE_QCOM_FM := true
 QCOM_FM_ENABLED := true
 
 # Vendor Init
 TARGET_UNIFIED_DEVICE := true
-TARGET_INIT_VENDOR_LIB := libinit_cancro
+TARGET_INIT_VENDOR_LIB := libinit_msm
+TARGET_LIBINIT_DEFINES_FILE := $(CANCRO_PATH)/init/init_cancro.cpp
 
 
 # Camera
@@ -90,32 +89,32 @@ USE_DEVICE_SPECIFIC_CAMERA := true
 USE_CAMERA_STUB := true
 
 # Audio/media
-TARGET_QCOM_AUDIO_VARIANT := caf-bfam
-TARGET_QCOM_MEDIA_VARIANT := caf-bfam
+TARGET_QCOM_AUDIO_VARIANT := caf-msm8974
+TARGET_QCOM_MEDIA_VARIANT := caf-msm8974
 TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 
 # Graphics
-TARGET_QCOM_DISPLAY_VARIANT := caf-bfam
+TARGET_QCOM_DISPLAY_VARIANT := caf-msm8974
 BOARD_EGL_CFG := $(CANCRO_PATH)/configs/egl.cfg
 USE_OPENGL_RENDERER := true
 TARGET_USES_C2D_COMPOSITION := true
 TARGET_USES_ION := true
 OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
 HAVE_ADRENO_SOURCE:= false
-TARGET_USES_POST_PROCESSING := true
-VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
-SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
+#TARGET_USES_POST_PROCESSING := true
+#VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
+#SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
 
 
 # Shader cache config options
 # Maximum size of the  GLES Shaders that can be cached for reuse.
 # Increase the size if shaders of size greater than 12KB are used.
-MAX_EGL_CACHE_KEY_SIZE := 12*1024
+#MAX_EGL_CACHE_KEY_SIZE := 12*1024
 
 # Maximum GLES shader cache size for each app to store the compiled shader
 # binaries. Decrease the size if RAM or Flash Storage size is a limitation
 # of the device.
-MAX_EGL_CACHE_SIZE := 2048*1024
+#MAX_EGL_CACHE_SIZE := 2048*1024
 
 # Wifi
 BOARD_HAS_QCOM_WLAN              := true
@@ -130,9 +129,6 @@ WIFI_DRIVER_MODULE_NAME          := "wlan"
 WIFI_DRIVER_FW_PATH_STA          := "sta"
 WIFI_DRIVER_FW_PATH_AP           := "ap"
 
-# No old RPC for prop
-TARGET_NO_RPC := true
-
 # Consumer IR
 TARGET_PROVIDES_CONSUMERIR_HAL := true
 
@@ -140,7 +136,10 @@ TARGET_PROVIDES_CONSUMERIR_HAL := true
 TARGET_GPS_HAL_PATH := device/xiaomi/msm8974-common/gps
 TARGET_PROVIDES_GPS_LOC_API := true
 
-#Mixer Paths
+# No old RPC for prop
+TARGET_NO_RPC := true
+
+# Audio misc
 AUDIO_FEATURE_DYNAMIC_MIXER_PATHS := true
 AUDIO_FEATURE_DISABLED_HWDEP_CAL := true
 
@@ -159,7 +158,6 @@ PROTOBUF_SUPPORTED := true
 
 # ANT+
 BOARD_ANT_WIRELESS_DEVICE := "vfs-prerelease"
-#BOARD_ANT_WIRELESS_DEVICE := "qualcomm-smd"
 
 # Filesystem
 TARGET_USERIMAGES_USE_EXT4         := true
@@ -195,24 +193,9 @@ BOARD_SUPPRESS_SECURE_ERASE := true
 # Selinux
 -include device/qcom/sepolicy/sepolicy.mk
 
-
-BOARD_SEPOLICY_DIRS += \
-        $(CANCRO_PATH)/sepolicy
-
-
-#BOARD_SEPOLICY_UNION += \
-#    file_contexts \
-#    property_contexts \
-#    wpa.te \
-#    mpdecision.te \
-#    qseecomd.te \
-#    rmt_storage.te \
-#    sensors.te \
-#    system_app.te \
-#    system_server.te \
-#    thermal-engine.te \
-#    vold.te \
-#    gsiff_daemon.te
+# Cancro sepolicy
+#BOARD_SEPOLICY_DIRS += \
+#        $(CANCRO_PATH)/sepolicy
     
     
 # TWRP specific build flags
