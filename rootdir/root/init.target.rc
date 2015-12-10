@@ -40,6 +40,10 @@ on init
     export VIBE_PIPE_PATH /dev/pipes
     mkdir /dev/pipes 0771 system system
 
+# import cne init file
+#on post-fs
+#    export LD_PRELOAD /vendor/lib/libNimsWrap.so
+
 on fs
     mount_all fstab.qcom
 
@@ -53,7 +57,7 @@ on fs
     mkdir /persist/data/tz 0700 system system
     mkdir /persist/audio 0771 media audio
 
-    mount vfat /dev/block/platform/msm_sdcc.1/by-name/modem /firmware wait ro context=u:object_r:firmware_file:s0,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
+    mount vfat /dev/block/platform/msm_sdcc.1/by-name/modem /firmware ro context=u:object_r:firmware_file:s0,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
 
 on post-fs-data
     mkdir /data/tombstones 0771 system system
@@ -169,7 +173,7 @@ service qosmgrd /system/bin/qosmgr /system/etc/qosmgr_rules.xml
    group system
    disabled
 
-service thermal-engine /system/bin/thermal-engine
+service thermal-engine /system/vendor/bin/thermal-engine --config /system/etc/thermal-engine-perf.conf
    user root
    socket thermal-send-client stream 0666 system system
    socket thermal-recv-client stream 0660 system system
@@ -177,7 +181,7 @@ service thermal-engine /system/bin/thermal-engine
    group root
    disabled
 
-service thermal-perf /system/bin/thermal-engine --config /system/etc/thermal-engine-perf.conf
+service thermal-perf /system/vendor/bin/thermal-engine --config /system/etc/thermal-engine-perf.conf
    class main
    user root
    group radio system
