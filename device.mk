@@ -66,11 +66,8 @@ DEVICE_PACKAGE_OVERLAYS += device/xiaomi/cancro/overlay
 
 LOCAL_PATH := device/xiaomi/cancro
 
-PRODUCT_CHARACTERISTICS := nosdcard
-
-# USB
+# Camera2
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-    persist.sys.usb.config=mtp \
     camera2.portability.force_api=1
 
 # CancroParts
@@ -78,8 +75,9 @@ PRODUCT_PACKAGES += \
     CancroParts
 
 # Camera
-PRODUCT_PACKAGES += \
-    camera.msm8974
+#PRODUCT_PACKAGES += \
+#    camera.msm8974 \
+#    libcam_shim
 
 # Charger
 PRODUCT_COPY_FILES += \
@@ -127,7 +125,6 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/gps/gps.conf:system/etc/gps.conf \
-    $(LOCAL_PATH)/gps/lowi.conf:system/etc/lowi.conf\
     $(LOCAL_PATH)/gps/flp.conf:system/etc/flp.conf \
     $(LOCAL_PATH)/gps/izat.conf:system/etc/izat.conf \
     $(LOCAL_PATH)/gps/quipc.conf:system/etc/quipc.conf \
@@ -135,13 +132,12 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.gps.qc_nlp_in_use=1 \
-    persist.loc.nlp_name=com.qualcomm.services.location \
-    ro.gps.agps_provider=1 \
-    ro.qc.sdk.izat.premium_enabled=1 \
-    ro.qc.sdk.izat.service_mask=0x5
+    persist.loc.nlp_name=com.qualcomm.location \
+    ro.gps.agps_provider=1 
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.fuse_sdcard=true
+    persist.fuse_sdcard=true \
+    persist.data.qmi.adb_logmask=0
 
 # Lights
 PRODUCT_PACKAGES += \
@@ -180,6 +176,12 @@ PRODUCT_PACKAGES += \
     hostapd.deny
 #   libwcnss_qmi
 
+# data
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/data/dsi_config.xml:system/etc/data/dsi_config.xml \
+    $(LOCAL_PATH)/configs/data/netmgr_config.xml:system/etc/data/netmgr_config.xml \
+    $(LOCAL_PATH)/configs/data/qmi_config.xml:system/etc/data/qmi_config.xml
+
 # SoftAP
 PRODUCT_PACKAGES += \
     libqsap_sdk \
@@ -200,8 +202,6 @@ PRODUCT_COPY_FILES += \
 
 # Thermal config
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/thermald-8974.conf:system/etc/thermald-8974.conf \
-    $(LOCAL_PATH)/configs/thermal-engine-8974.conf:system/etc/thermal-engine-8974.conf \
     $(LOCAL_PATH)/configs/thermal-engine-perf.conf:system/etc/thermal-engine-perf.conf
 
 
@@ -260,6 +260,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
     $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
+    $(LOCAL_PATH)/configs/media_codecs_performance_8974.xml:system/etc/media_codecs_performance.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
@@ -282,9 +283,10 @@ PRODUCT_PACKAGES += \
     libOmxVidcCommon \
     libqcmediaplayer \
     libstagefrighthw \
-    qcmediaplayer
+    qcmediaplayer \
+    libqcmediaplayer 
 
-PRODUCT_BOOT_JARS += qcmediaplayer
+
 
 PRODUCT_PACKAGES += \
     audiod \
@@ -307,7 +309,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     audio.offload.buffer.size.kb=32 \
     audio.offload.video=true \
     audio.offload.gapless.enabled=false \
-    audio.offload.disable=1 \
+    audio.offload.disable=0 \
     use.dedicated.device.for.voip=false \
     use.voice.path.for.pcm.voip=true \
     media.aac_51_output_enabled=true \
@@ -316,7 +318,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.audio.fluence.voicecall=true \
     persist.audio.fluence.voicerec=false \
     persist.audio.fluence.speaker=true \
-    audio.offload.pcm.enable=false
+    audio.offload.pcm.enable=true
 
 
 
@@ -342,6 +344,31 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     libxml2
+
+# CodeAurora
+PRODUCT_PACKAGES += \
+    org.codeaurora.Performance \
+    org.codeaurora.camera \
+    BluetoothExt \
+    javax.btobex \
+    libattrib_static \
+    libQWiFiSoftApCfg \
+    libqsap_sdk \
+    services-ext \
+    liballjoyn \
+    libtinyxml \
+    libtinyxml2 \
+    tcmiface \
+    rmnetcli \
+    librmnetctl \
+    datatop \
+    sockev \
+    telresources \
+    libexsurfaceflinger
+
+
+PRODUCT_BOOT_JARS += qcmediaplayer
+PRODUCT_BOOT_JARS += tcmiface
     
 # BoringSSL compatibility wrapper
 PRODUCT_PACKAGES += \
@@ -407,6 +434,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.nfc.port=I2C \
     persist.demo.hdmirotationlock=false \
     ro.hdmi.enable=true \
+    dalvik.vm.dex2oat-flags=--no-watch-dog \
+    dalvik.vm.dex2oat-swap=false \
     debug.sf.hw=1 \
     debug.egl.hw=1 \
     persist.hwc.mdpcomp.enable=true \
@@ -414,10 +443,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
     debug.composition.type=dyn \
     ro.sf.lcd_density=480 \
     dev.pm.dyn_samplingrate=1 \
-    ro.opengles.version=196608 \
+    ro.opengles.version=196609 \
     ril.subscription.types=RUIM \
     persist.omh.enabled=true \
     persist.sys.ssr.restart_level=3 \
+    persist.radio.custom_ecc=1 \
+    ro.telephony.default_cdma_sub=0 \
     persist.timed.enable=true \
     persist.debug.wfd.enable=1 \
     persist.sys.wfd.virtual=0 \
@@ -452,6 +483,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
     frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
+    frameworks/native/data/etc/android.hardware.opengles.aep.xml:system/etc/permissions/android.hardware.opengles.aep.xml \
     frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
     frameworks/native/data/etc/android.hardware.sensor.barometer.xml:system/etc/permissions/android.hardware.sensor.barometer.xml \
     frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.compass.xml \
