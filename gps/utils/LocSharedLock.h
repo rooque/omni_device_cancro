@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -26,39 +26,33 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+#ifndef __LOC_SHARED_LOCK__
+#define __LOC_SHARED_LOCK__
 
-#ifndef __LOC_H__
-#define __LOC_H__
+#include <stddef.h>
+#include <pthread.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+// This is a utility created for use cases such that there are more than
+// one client who need to share the same lock, but it is not predictable
+// which of these clients is to last to go away. This shared lock deletes
+// itself when the last client calls its drop() method. To add a cient,
+// this share lock's share() method has to be called, so that the obj
+// can maintain an accurate client count.
+class LocSharedLock {
+    uint32_t mRef;
+    pthread_mutex_t mMutex;
+    inline ~LocSharedLock() { pthread_mutex_destroy(&mMutex); }
+public:
+    // first client to create this LockSharedLock
+    inline LocSharedLock() : mRef(1) { pthread_mutex_init(&mMutex, NULL); }
+    // following client(s) are to *share()* this lock created by the first client
+    inline LocSharedLock* share() { mRef++; return this; }
+    // whe a client no longer needs this shared lock, drop() shall be called.
+    inline void drop() { if (0 == --mRef) delete this; }
+    // locking the lock to enter critical section
+    inline void lock() { pthread_mutex_lock(&mMutex); }
+    // unlocking the lock to leave the critical section
+    inline void unlock() { pthread_mutex_unlock(&mMutex); }
+};
 
-#include <ctype.h>
-#include <cutils/properties.h>
-#include <hardware/gps.h>
-#include <gps_extended.h>
-
-typedef void (*loc_location_cb_ext) (UlpLocation* location, void* locExt);
-typedef void (*loc_sv_status_cb_ext) (GpsSvStatus* sv_status, void* svExt);
-typedef void* (*loc_ext_parser)(void* data);
-
-typedef struct {
-    loc_location_cb_ext location_cb;
-    gps_status_callback status_cb;
-    loc_sv_status_cb_ext sv_status_cb;
-    gps_nmea_callback nmea_cb;
-    gps_set_capabilities set_capabilities_cb;
-    gps_acquire_wakelock acquire_wakelock_cb;
-    gps_release_wakelock release_wakelock_cb;
-    gps_create_thread create_thread_cb;
-    loc_ext_parser location_ext_parser;
-    loc_ext_parser sv_ext_parser;
-    gps_request_utc_time request_utc_time_cb;
-} LocCallbacks;
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif //__LOC_H__
+#endif //__LOC_SHARED_LOCK__

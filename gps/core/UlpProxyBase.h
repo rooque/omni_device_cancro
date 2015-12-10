@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,6 +31,9 @@
 
 #include <gps_extended.h>
 
+struct FlpExtLocation_s;
+struct FlpExtBatchOptions;
+
 namespace loc_core {
 
 class LocAdapterBase;
@@ -50,6 +53,7 @@ public:
         mPosMode = params;
         return false;
     }
+
     inline virtual bool reportPosition(UlpLocation &location,
                                        GpsLocationExtended &locationExtended,
                                        void* locationExt,
@@ -57,7 +61,7 @@ public:
                                        LocPosTechMask loc_technology_mask) {
         return false;
     }
-    inline virtual bool reportSv(GpsSvStatus &svStatus,
+    inline virtual bool reportSv(GnssSvStatus &svStatus,
                                  GpsLocationExtended &locationExtended,
                                  void* svExt) {
         return false;
@@ -67,6 +71,14 @@ public:
     }
     inline virtual void setAdapter(LocAdapterBase* adapter) {}
     inline virtual void setCapabilities(unsigned long capabilities) {}
+    inline virtual bool reportBatchingSession(FlpExtBatchOptions &options,
+                                              bool active) {
+        return false;
+    }
+    inline virtual bool reportPositions(const struct FlpExtLocation_s* locations,
+                                        int32_t number_of_locations) {
+        return false;
+    }
 };
 
 } // namespace loc_core

@@ -14,12 +14,10 @@
 # limitations under the License.
 #
 
-ifeq ($(BOARD_VENDOR),xiaomi)
-ifeq ($(TARGET_BOARD_PLATFORM),msm8974)
+ifneq ($(filter omni_cancro cancro virgo,$(TARGET_DEVICE)),)
 
 LOC_PATH := $(call my-dir)
 
 include $(call first-makefiles-under,$(LOC_PATH))
 
-endif
 endif
